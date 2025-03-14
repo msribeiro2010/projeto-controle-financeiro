@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>Meu Controle Financeiro</h1>
+            <button id="btnSettings" class="btn-icon" aria-label="Configurações">
+                <i class="fas fa-cog"></i>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Summary Card -->
+            <div class="summary-card">
+                <div class="summary-title">Saldo Total</div>
+                <div class="summary-balance" id="totalBalance">R$ 0,00</div>
+            </div>
+
+            <!-- Accounts Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Minhas Contas</h2>
+                </div>
+                
+                <div id="accountsList" class="accounts-list">
+                    <!-- Accounts will be added here dynamically -->
+                    <div class="empty-state" id="emptyState">
+                        <p>Você ainda não tem contas cadastradas</p>
+                    </div>
+                </div>
+                
+                <div class="help-tip" id="accountsHelpTip">
+                    <p><i class="fas fa-info-circle"></i> Clique em uma conta para adicionar despesas e depósitos</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Floating Action Button -->
+        <button id="btnAddAccount" class="fab" aria-label="Adicionar Conta">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Modal: Add Account -->
+        <div id="addAccountModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Adicionar Conta</h2>
+                    <button class="btn-close" data-close-modal="addAccountModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAccountForm">
+                        <div class="form-group">
+                            <label for="bankName">Banco</label>
+                            <select id="bankName" class="form-control" required>
+                                <option value="">Selecione um banco</option>
+                                <option value="Banco do Brasil">Banco do Brasil</option>
+                                <option value="Caixa Econômica Federal">Caixa Econômica Federal</option>
+                                <option value="Itaú">Itaú</option>
+                                <option value="Bradesco">Bradesco</option>
+                                <option value="Santander">Santander</option>
+                                <option value="Nubank">Nubank</option>
+                                <option value="Inter">Inter</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="customBankGroup" style="display: none;">
+                            <label for="customBankName">Nome do Banco</label>
+                            <input type="text" id="customBankName" class="form-control" placeholder="Digite o nome do banco">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="accountNumber">Número da Conta</label>
+                            <input type="text" id="accountNumber" class="form-control" placeholder="Ex: 12345-6" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="balance">Saldo Inicial (R$)</label>
+                            <input type="number" id="balance" class="form-control" placeholder="Ex: 1000.00" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="overdraftLimit">Limite de Cheque Especial (R$) - Opcional</label>
+                            <input type="number" id="overdraftLimit" class="form-control" placeholder="Ex: 500.00" step="0.01" value="0">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" data-close-modal="addAccountModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Account Details -->
+        <div id="accountDetailsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Detalhes da Conta</h2>
+                    <button class="btn-close" data-close-modal="accountDetailsModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="account-details-content">
+                        <div class="account-header">
+                            <h3 id="detailsBankName">Nome do Banco</h3>
+                            <p id="detailsAccountNumber">Conta: 12345-6</p>
+                        </div>
+                        
+                        <div class="balances-container">
+                            <div class="balance-item">
+                                <div class="balance-label">Saldo Atual</div>
+                                <div id="detailsBalance" class="balance-value">R$ 0,00</div>
+                                <button id="btnEditBalance" class="btn-link">Editar</button>
+                            </div>
+                            
+                            <div class="balance-item">
+                                <div class="balance-label">Cheque Especial</div>
+                                <div id="detailsOverdraftLimit" class="balance-value">R$ 0,00</div>
+                                <button id="btnEditOverdraft" class="btn-link">Editar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="available-balance">
+                            <div class="available-label">Saldo Disponível</div>
+                            <div id="detailsAvailableBalance" class="available-value">R$ 0,00</div>
+                        </div>
+                        
+                        <div class="expenses-section">
+                            <h3>Despesas Recentes</h3>
+                            <div id="expensesList" class="expenses-list">
+                                <!-- Expenses will be added here dynamically -->
+                                <div class="empty-state" id="emptyExpensesState">
+                                    <p>Nenhuma despesa registrada</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="deposits-section">
+                            <h3>Depósitos Recentes</h3>
+                            <div id="depositsList" class="deposits-list">
+                                <!-- Deposits will be added here dynamically -->
+                                <div class="empty-state" id="emptyDepositsState">
+                                    <p>Nenhum depósito registrado</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="adjustments-section">
+                            <h3>Ajustes de Saldo</h3>
+                            <div id="adjustmentsList" class="adjustments-list">
+                                <!-- Adjustments will be added here dynamically -->
+                                <div class="empty-state" id="emptyAdjustmentsState">
+                                    <p>Nenhum ajuste de saldo registrado</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="details-actions">
+                            <button id="btnAddExpense" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Adicionar Despesa
+                            </button>
+                            <button id="btnAddDeposit" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Adicionar Depósito
+                            </button>
+                            <button id="btnDeleteAccount" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Excluir Conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Add Expense -->
+        <div id="addExpenseModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Adicionar Despesa</h2>
+                    <button class="btn-close" data-close-modal="addExpenseModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addExpenseForm">
+                        <div class="form-group">
+                            <label for="expenseCategory">Categoria</label>
+                            <select id="expenseCategory" class="form-control" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="Alimentação">Alimentação</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Moradia">Moradia</option>
+                                <option value="Saúde">Saúde</option>
+                                <option value="Educação">Educação</option>
+                                <option value="Escola">Escola</option>
+                                <option value="Restaurante">Restaurante</option>
+                                <option value="Carro">Carro</option>
+                                <option value="Cartão">Cartão</option>
+                                <option value="Lazer">Lazer</option>
+                                <option value="Vestuário">Vestuário</option>
+                                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                <option value="Serviços">Serviços</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expenseDescription">Descrição</label>
+                            <input type="text" id="expenseDescription" class="form-control" placeholder="Ex: Supermercado Mensal" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expenseAmount">Valor (R$)</label>
+                            <input type="number" id="expenseAmount" class="form-control" placeholder="Ex: 150.00" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expenseDate">Data</label>
+                            <input type="date" id="expenseDate" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" data-close-modal="addExpenseModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Edit Overdraft -->
+        <div id="editOverdraftModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Editar Limite de Cheque Especial</h2>
+                    <button class="btn-close" data-close-modal="editOverdraftModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editOverdraftForm">
+                        <div class="form-group">
+                            <label for="newOverdraftLimit">Novo Limite (R$)</label>
+                            <input type="number" id="newOverdraftLimit" class="form-control" placeholder="Ex: 500.00" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" data-close-modal="editOverdraftModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Settings -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Configurações</h2>
+                    <button class="btn-close" data-close-modal="settingsModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-section">
+                        <h3>Aparência</h3>
+                        <div class="setting-item">
+                            <span>Tema Escuro</span>
+                            <label class="switch">
+                                <input type="checkbox" id="darkModeToggle" aria-label="Ativar tema escuro">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Dados</h3>
+                        <button id="btnClearData" class="btn btn-danger btn-block">
+                            <i class="fas fa-trash"></i> Limpar Todos os Dados
+                        </button>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Sobre</h3>
+                        <div class="about-item">
+                            <span>Versão</span>
+                            <span>1.0.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Confirm Delete -->
+        <div id="confirmDeleteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirmar Exclusão</h2>
+                    <button class="btn-close" data-close-modal="confirmDeleteModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir esta conta? Esta ação não pode ser desfeita.</p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" data-close-modal="confirmDeleteModal">Cancelar</button>
+                        <button id="btnConfirmDelete" class="btn btn-danger">Excluir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Confirm Clear Data -->
+        <div id="confirmClearDataModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirmar Limpeza</h2>
+                    <button class="btn-close" data-close-modal="confirmClearDataModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja apagar todos os dados do aplicativo? Esta ação não pode ser desfeita.</p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" data-close-modal="confirmClearDataModal">Cancelar</button>
+                        <button id="btnConfirmClearData" class="btn btn-danger">Limpar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Add Deposit -->
+        <div id="addDepositModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Adicionar Depósito</h2>
+                    <button class="btn-close" data-close-modal="addDepositModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDepositForm">
+                        <div class="form-group">
+                            <label for="depositCategory">Categoria</label>
+                            <select id="depositCategory" class="form-control" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="Salário">Salário</option>
+                                <option value="Transferência">Transferência</option>
+                                <option value="Investimento">Investimento</option>
+                                <option value="Reembolso">Reembolso</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="depositDescription">Descrição</label>
+                            <input type="text" id="depositDescription" class="form-control" placeholder="Ex: Salário Mensal" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="depositAmount">Valor (R$)</label>
+                            <input type="number" id="depositAmount" class="form-control" placeholder="Ex: 3000.00" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="depositDate">Data</label>
+                            <input type="date" id="depositDate" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" data-close-modal="addDepositModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Edit Expense -->
+        <div id="editExpenseModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Editar Despesa</h2>
+                    <button class="btn-close" data-close-modal="editExpenseModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editExpenseForm">
+                        <div class="form-group">
+                            <label for="editExpenseCategory">Categoria</label>
+                            <select id="editExpenseCategory" class="form-control" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="Alimentação">Alimentação</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Moradia">Moradia</option>
+                                <option value="Saúde">Saúde</option>
+                                <option value="Educação">Educação</option>
+                                <option value="Escola">Escola</option>
+                                <option value="Restaurante">Restaurante</option>
+                                <option value="Carro">Carro</option>
+                                <option value="Cartão">Cartão</option>
+                                <option value="Lazer">Lazer</option>
+                                <option value="Vestuário">Vestuário</option>
+                                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                <option value="Serviços">Serviços</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editExpenseDescription">Descrição</label>
+                            <input type="text" id="editExpenseDescription" class="form-control" placeholder="Ex: Supermercado Mensal" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editExpenseAmount">Valor (R$)</label>
+                            <input type="number" id="editExpenseAmount" class="form-control" placeholder="Ex: 150.00" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editExpenseDate">Data</label>
+                            <input type="date" id="editExpenseDate" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" data-close-modal="editExpenseModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Edit Deposit -->
+        <div id="editDepositModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Editar Depósito</h2>
+                    <button class="btn-close" data-close-modal="editDepositModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editDepositForm">
+                        <div class="form-group">
+                            <label for="editDepositCategory">Categoria</label>
+                            <select id="editDepositCategory" class="form-control" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="Salário">Salário</option>
+                                <option value="Transferência">Transferência</option>
+                                <option value="Investimento">Investimento</option>
+                                <option value="Reembolso">Reembolso</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editDepositDescription">Descrição</label>
+                            <input type="text" id="editDepositDescription" class="form-control" placeholder="Ex: Salário Mensal" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editDepositAmount">Valor (R$)</label>
+                            <input type="number" id="editDepositAmount" class="form-control" placeholder="Ex: 3000.00" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editDepositDate">Data</label>
+                            <input type="date" id="editDepositDate" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" data-close-modal="editDepositModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Confirm Delete Expense -->
+        <div id="confirmDeleteExpenseModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirmar Exclusão</h2>
+                    <button class="btn-close" data-close-modal="confirmDeleteExpenseModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmDeleteExpenseText">Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita.</p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" data-close-modal="confirmDeleteExpenseModal">Cancelar</button>
+                        <button id="btnConfirmDeleteExpense" class="btn btn-danger">Excluir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Confirm Delete Deposit -->
+        <div id="confirmDeleteDepositModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirmar Exclusão</h2>
+                    <button class="btn-close" data-close-modal="confirmDeleteDepositModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmDeleteDepositText">Tem certeza que deseja excluir este depósito? Esta ação não pode ser desfeita.</p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" data-close-modal="confirmDeleteDepositModal">Cancelar</button>
+                        <button id="btnConfirmDeleteDeposit" class="btn btn-danger">Excluir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Edit Balance -->
+        <div id="editBalanceModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Editar Saldo Atual</h2>
+                    <button class="btn-close" data-close-modal="editBalanceModal" aria-label="Fechar modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editBalanceForm">
+                        <div class="form-group">
+                            <label for="newBalance">Novo Saldo (R$)</label>
+                            <input type="number" id="newBalance" class="form-control" placeholder="Ex: 1500.00" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="balanceAdjustmentReason">Motivo do Ajuste</label>
+                            <select id="balanceAdjustmentReason" class="form-control" required>
+                                <option value="">Selecione um motivo</option>
+                                <option value="Correção">Correção de Erro</option>
+                                <option value="Conciliação">Conciliação Bancária</option>
+                                <option value="Ajuste Manual">Ajuste Manual</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="balanceAdjustmentNote">Observação (opcional)</label>
+                            <textarea id="balanceAdjustmentNote" class="form-control" placeholder="Descreva o motivo do ajuste" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" data-close-modal="editBalanceModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div id="toastMessage">Operação realizada com sucesso!</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 

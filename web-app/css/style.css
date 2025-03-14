@@ -1,0 +1,995 @@
+/* Variáveis CSS */
+:root {
+    --primary-color: #4c6ef5;
+    --primary-light: #7b9aff;
+    --primary-dark: #0045c2;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --info-color-light: #e3f4f6;
+    --dark-color: #343a40;
+    --light-color: #f8f9fa;
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --gray-300: #dee2e6;
+    --gray-400: #ced4da;
+    --gray-500: #adb5bd;
+    --gray-600: #6c757d;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
+    --font-family: 'Roboto', sans-serif;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Tema Escuro */
+[data-theme="dark"] {
+    --primary-color: #7b9aff;
+    --primary-light: #a0b9ff;
+    --primary-dark: #4c6ef5;
+    --dark-color: #f8f9fa;
+    --light-color: #212529;
+    --gray-100: #343a40;
+    --gray-200: #495057;
+    --gray-300: #6c757d;
+    --gray-700: #ced4da;
+    --gray-800: #e9ecef;
+    --gray-900: #f8f9fa;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    background-color: #121212;
+    color: #f8f9fa;
+}
+
+/* Reset e Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: var(--font-family);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--gray-900);
+    background-color: var(--gray-100);
+}
+
+/* Container Principal */
+.app-container {
+    max-width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: var(--box-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.app-header h1 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+/* Botões */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-block {
+    display: flex;
+    width: 100%;
+}
+
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    color: var(--primary-color);
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+/* Conteúdo Principal */
+.main-content {
+    flex: 1;
+    padding: 16px;
+    max-width: 768px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Cartão de Resumo */
+.summary-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+}
+
+.summary-title {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-bottom: 8px;
+}
+
+.summary-balance {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Seção */
+.section {
+    margin-bottom: 24px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--gray-800);
+}
+
+/* Lista de Contas */
+.accounts-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 576px) {
+    .accounts-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.account-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 16px;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.account-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.account-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.bank-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--gray-200);
+    color: var(--gray-700);
+    font-weight: 700;
+}
+
+.account-details {
+    flex: 1;
+}
+
+.bank-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.account-number {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+}
+
+.account-balance {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Estado Vazio */
+.empty-state {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 32px 16px;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    color: var(--gray-600);
+}
+
+/* Floating Action Button */
+.fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    z-index: 99;
+}
+
+.fab:hover {
+    background-color: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+.fab i {
+    font-size: 1.5rem;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    animation: modal-appear 0.3s ease;
+}
+
+@keyframes modal-appear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: var(--gray-600);
+    transition: var(--transition);
+}
+
+.btn-close:hover {
+    color: var(--gray-900);
+}
+
+.modal-body {
+    padding: 16px;
+}
+
+/* Formulário */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--gray-700);
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    transition: border-color 0.2s;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.25);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* Detalhes da Conta */
+.account-details-content {
+    padding: 8px;
+}
+
+.account-header {
+    margin-bottom: 16px;
+}
+
+.account-header h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.account-header p {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+}
+
+.balances-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.balance-item {
+    background-color: var(--gray-100);
+    border-radius: var(--border-radius);
+    padding: 12px;
+}
+
+.balance-label {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    margin-bottom: 4px;
+}
+
+.balance-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.available-balance {
+    background-color: var(--primary-light);
+    color: white;
+    padding: 16px;
+    border-radius: var(--border-radius);
+    margin-bottom: 24px;
+}
+
+.available-label {
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+}
+
+.available-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.available-value.positive {
+    color: var(--success-color);
+}
+
+.available-value.negative {
+    color: var(--danger-color);
+}
+
+.available-value.zero {
+    color: var(--gray-300);
+}
+
+.expenses-section {
+    margin-bottom: 24px;
+}
+
+.expenses-section h3 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.expenses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.expense-item {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 12px;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.expense-info {
+    flex: 1;
+}
+
+.expense-category {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    margin-bottom: 4px;
+}
+
+.expense-description {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.expense-date {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+}
+
+.expense-amount {
+    font-weight: 700;
+    color: var(--danger-color);
+}
+
+.details-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Configurações */
+.settings-section {
+    margin-bottom: 24px;
+}
+
+.settings-section h3 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.about-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+/* Switch (Toggle) */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--gray-300);
+    transition: var(--transition);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: var(--transition);
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: var(--dark-color);
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Animações */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fade-in 0.3s ease;
+}
+
+.slide-up {
+    animation: slide-up 0.3s ease;
+}
+
+/* Adaptações para Tema Escuro */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .account-card,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .expense-item {
+    background-color: var(--gray-800);
+    color: var(--light-color);
+}
+
+[data-theme="dark"] .form-control {
+    background-color: var(--gray-700);
+    border-color: var(--gray-600);
+    color: var(--light-color);
+}
+
+[data-theme="dark"] .modal-header {
+    border-bottom-color: var(--gray-700);
+}
+
+[data-theme="dark"] .setting-item,
+[data-theme="dark"] .about-item {
+    border-bottom-color: var(--gray-700);
+}
+
+/* Responsividade Adicional */
+@media (max-width: 480px) {
+    .balances-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+
+/* Acessibilidade */
+:focus {
+    outline: 3px solid rgba(76, 110, 245, 0.5);
+    outline-offset: 2px;
+}
+
+/* Dica de ajuda */
+.help-tip {
+    background-color: var(--info-color-light);
+    border-radius: var(--border-radius);
+    padding: 12px;
+    margin-top: 16px;
+    text-align: center;
+    color: var(--info-color);
+    font-size: 0.9rem;
+}
+
+.help-tip i {
+    margin-right: 6px;
+}
+
+[data-theme="dark"] .help-tip {
+    background-color: rgba(76, 110, 245, 0.1);
+}
+
+.deposits-section {
+    margin-bottom: 24px;
+}
+
+.deposits-section h3 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.deposits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.deposit-item {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 12px;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.deposit-info {
+    flex: 1;
+}
+
+.deposit-category {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    margin-bottom: 4px;
+}
+
+.deposit-description {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.deposit-date {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+}
+
+.deposit-amount {
+    font-weight: 700;
+    color: var(--success-color);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+/* Adaptações para Tema Escuro */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .account-card,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .expense-item,
+[data-theme="dark"] .deposit-item {
+    background-color: var(--gray-800);
+    color: var(--light-color);
+}
+
+[data-theme="dark"] .available-balance {
+    background-color: var(--primary-dark);
+}
+
+[data-theme="dark"] .available-value.positive {
+    color: var(--success-color);
+}
+
+[data-theme="dark"] .available-value.negative {
+    color: var(--danger-color);
+}
+
+[data-theme="dark"] .available-value.zero {
+    color: var(--gray-400);
+}
+
+.expense-item, .deposit-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.expense-item:hover, .deposit-item:hover {
+    background-color: var(--hover-color);
+}
+
+.expense-info, .deposit-info {
+    flex: 1;
+}
+
+.expense-category, .deposit-category {
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+}
+
+.expense-description, .deposit-description {
+    margin-bottom: 2px;
+}
+
+.expense-date, .deposit-date {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+}
+
+.expense-amount, .deposit-amount {
+    font-weight: 700;
+    margin: 0 12px;
+}
+
+.expense-amount.negative {
+    color: var(--danger-color);
+}
+
+.deposit-amount.positive {
+    color: var(--success-color);
+}
+
+.expense-actions, .deposit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-edit-expense, .btn-edit-deposit {
+    color: var(--primary-color);
+}
+
+.btn-delete-expense, .btn-delete-deposit {
+    color: var(--danger-color);
+}
+
+[data-theme="dark"] .expense-actions button, 
+[data-theme="dark"] .deposit-actions button {
+    color: var(--light-color);
+}
+
+[data-theme="dark"] .btn-edit-expense, 
+[data-theme="dark"] .btn-edit-deposit {
+    color: var(--primary-light);
+}
+
+[data-theme="dark"] .btn-delete-expense, 
+[data-theme="dark"] .btn-delete-deposit {
+    color: var(--danger-color);
+}
+
+.adjustments-section {
+    margin-top: 24px;
+}
+
+.adjustments-section h3 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.adjustments-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.adjustment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.adjustment-item:hover {
+    background-color: var(--hover-color);
+}
+
+.adjustment-info {
+    flex: 1;
+}
+
+.adjustment-reason {
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+}
+
+.adjustment-note {
+    margin-bottom: 2px;
+    font-size: 0.875rem;
+}
+
+.adjustment-date {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+}
+
+.adjustment-amount {
+    font-weight: 700;
+    margin: 0 12px;
+}
+
+.adjustment-amount.positive {
+    color: var(--success-color);
+}
+
+.adjustment-amount.negative {
+    color: var(--danger-color);
+}
+
+.adjustment-amount.zero {
+    color: var(--gray-600);
+}
+
+[data-theme="dark"] .adjustment-reason {
+    color: var(--primary-light);
+}
+
+[data-theme="dark"] .adjustment-date {
+    color: var(--gray-400);
+} 
