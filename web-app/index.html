@@ -233,6 +233,17 @@
                             <input type="date" id="expenseDate" class="form-control" required>
                         </div>
                         
+                        <div class="form-group">
+                            <label for="expenseReceipt">Anexar Boleto/Comprovante (opcional)</label>
+                            <div class="file-input-container">
+                                <input type="file" id="expenseReceipt" class="file-input" accept="image/*,.pdf">
+                                <label for="expenseReceipt" class="file-input-label">
+                                    <i class="fas fa-upload"></i> Escolher arquivo
+                                </label>
+                                <span id="expenseReceiptName" class="file-name">Nenhum arquivo selecionado</span>
+                            </div>
+                        </div>
+                        
                         <div class="form-actions">
                             <button type="button" class="btn btn-secondary" data-close-modal="addExpenseModal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Salvar</button>
@@ -436,6 +447,28 @@
                         <div class="form-group">
                             <label for="editExpenseDate">Data</label>
                             <input type="date" id="editExpenseDate" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editExpenseReceipt">Anexar Boleto/Comprovante (opcional)</label>
+                            <div class="file-input-container">
+                                <input type="file" id="editExpenseReceipt" class="file-input" accept="image/*,.pdf">
+                                <label for="editExpenseReceipt" class="file-input-label">
+                                    <i class="fas fa-upload"></i> Escolher arquivo
+                                </label>
+                                <span id="editExpenseReceiptName" class="file-name">Nenhum arquivo selecionado</span>
+                            </div>
+                            <div id="currentReceiptContainer" class="current-receipt-container" style="display: none;">
+                                <p>Comprovante atual: <span id="currentReceiptName"></span></p>
+                                <div class="receipt-actions">
+                                    <button type="button" id="viewReceiptBtn" class="btn-link">
+                                        <i class="fas fa-eye"></i> Visualizar
+                                    </button>
+                                    <button type="button" id="removeReceiptBtn" class="btn-link text-danger">
+                                        <i class="fas fa-trash"></i> Remover
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="form-actions">

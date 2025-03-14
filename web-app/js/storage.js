@@ -264,9 +264,10 @@ const ExpenseManager = {
     /**
      * Adiciona uma nova despesa
      * @param {Object} expense - Dados da despesa
+     * @param {File|null} receiptFile - Arquivo de comprovante/boleto
      * @returns {boolean} Sucesso da operação
      */
-    add: function(expense) {
+    add: function(expense, receiptFile = null) {
         const expenses = this.getAll();
         
         // Adiciona um ID único à despesa
@@ -277,28 +278,60 @@ const ExpenseManager = {
         // Adiciona a data de criação
         expense.createdAt = new Date().toISOString();
         
-        expenses.push(expense);
-        
-        // Atualiza o saldo da conta
-        if (expense.accountId) {
-            const account = AccountManager.getById(expense.accountId);
-            if (account) {
-                const newBalance = parseFloat(account.balance) - parseFloat(expense.amount);
-                AccountManager.updateBalance(expense.accountId, newBalance);
+        // Processa o arquivo de comprovante, se existir
+        if (receiptFile) {
+            expense.hasReceipt = true;
+            expense.receiptName = receiptFile.name;
+            expense.receiptType = receiptFile.type;
+            
+            // Converte o arquivo para base64
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                expense.receiptData = e.target.result;
+                
+                // Salva a despesa com o comprovante
+                expenses.push(expense);
+                
+                // Atualiza o saldo da conta
+                if (expense.accountId) {
+                    const account = AccountManager.getById(expense.accountId);
+                    if (account) {
+                        const newBalance = parseFloat(account.balance) - parseFloat(expense.amount);
+                        AccountManager.updateBalance(expense.accountId, newBalance);
+                    }
+                }
+                
+                Storage.save(STORAGE_KEYS.EXPENSES, expenses);
+            };
+            reader.readAsDataURL(receiptFile);
+            return true;
+        } else {
+            expense.hasReceipt = false;
+            expenses.push(expense);
+            
+            // Atualiza o saldo da conta
+            if (expense.accountId) {
+                const account = AccountManager.getById(expense.accountId);
+                if (account) {
+                    const newBalance = parseFloat(account.balance) - parseFloat(expense.amount);
+                    AccountManager.updateBalance(expense.accountId, newBalance);
+                }
             }
+            
+            return Storage.save(STORAGE_KEYS.EXPENSES, expenses);
         }
-        
-        return Storage.save(STORAGE_KEYS.EXPENSES, expenses);
     },
 
     /**
      * Atualiza uma despesa existente
      * @param {string} id - ID da despesa
      * @param {Object} updatedData - Novos dados
+     * @param {File|null} receiptFile - Novo arquivo de comprovante/boleto
+     * @param {boolean} removeReceipt - Se deve remover o comprovante existente
      * @param {boolean} updateBalance - Se deve atualizar o saldo da conta
-     * @returns {boolean} Sucesso da operação
+     * @returns {boolean|Promise} Sucesso da operação ou Promise
      */
-    update: function(id, updatedData, updateBalance = true) {
+    update: function(id, updatedData, receiptFile = null, removeReceipt = false, updateBalance = true) {
         const expenses = this.getAll();
         const index = expenses.findIndex(expense => expense.id === id);
         
@@ -322,8 +355,46 @@ const ExpenseManager = {
             }
         }
         
-        expenses[index] = { ...oldExpense, ...updatedData };
-        return Storage.save(STORAGE_KEYS.EXPENSES, expenses);
+        // Gerencia o comprovante
+        if (removeReceipt) {
+            // Remove o comprovante existente
+            updatedData.hasReceipt = false;
+            updatedData.receiptName = null;
+            updatedData.receiptType = null;
+            updatedData.receiptData = null;
+            
+            expenses[index] = { ...oldExpense, ...updatedData };
+            return Storage.save(STORAGE_KEYS.EXPENSES, expenses);
+        } else if (receiptFile) {
+            // Adiciona um novo comprovante
+            updatedData.hasReceipt = true;
+            updatedData.receiptName = receiptFile.name;
+            updatedData.receiptType = receiptFile.type;
+            
+            // Converte o arquivo para base64
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    updatedData.receiptData = e.target.result;
+                    
+                    expenses[index] = { ...oldExpense, ...updatedData };
+                    const success = Storage.save(STORAGE_KEYS.EXPENSES, expenses);
+                    resolve(success);
+                };
+                reader.readAsDataURL(receiptFile);
+            });
+        } else {
+            // Mantém o comprovante existente, se houver
+            if (oldExpense.hasReceipt) {
+                updatedData.hasReceipt = true;
+                updatedData.receiptName = oldExpense.receiptName;
+                updatedData.receiptType = oldExpense.receiptType;
+                updatedData.receiptData = oldExpense.receiptData;
+            }
+            
+            expenses[index] = { ...oldExpense, ...updatedData };
+            return Storage.save(STORAGE_KEYS.EXPENSES, expenses);
+        }
     },
 
     /**

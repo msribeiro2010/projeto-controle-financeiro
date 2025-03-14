@@ -478,15 +478,19 @@ const ExpenseUI = {
         expensesList.innerHTML = expenses.map(expense => {
             const formattedAmount = formatCurrency(expense.amount);
             const formattedDate = formatDate(expense.date);
+            const receiptIndicator = expense.hasReceipt ? 
+                `<span class="receipt-indicator" data-expense-id="${expense.id}" title="Ver comprovante">
+                    <i class="fas fa-paperclip"></i>
+                </span>` : '';
             
             return `
-                <div class="expense-item" data-expense-id="${expense.id}">
+                <div class="expense-item ${expense.hasReceipt ? 'expense-item-with-receipt' : ''}" data-expense-id="${expense.id}">
                     <div class="expense-info">
                         <div class="expense-category">${expense.category}</div>
                         <div class="expense-description">${expense.description}</div>
                         <div class="expense-date">${formattedDate}</div>
                     </div>
-                    <div class="expense-amount negative">${formattedAmount}</div>
+                    <div class="expense-amount negative">${formattedAmount} ${receiptIndicator}</div>
                     <div class="expense-actions">
                         <button class="btn-icon btn-edit-expense" data-expense-id="${expense.id}" aria-label="Editar despesa">
                             <i class="fas fa-edit"></i>
@@ -501,6 +505,9 @@ const ExpenseUI = {
         
         // Adiciona eventos aos botões de edição e exclusão
         this.addExpenseActionEvents(accountId);
+        
+        // Adiciona eventos aos indicadores de comprovante
+        this.addReceiptEvents();
     },
 
     /**
@@ -530,6 +537,73 @@ const ExpenseUI = {
     },
 
     /**
+     * Adiciona eventos aos indicadores de comprovante
+     */
+    addReceiptEvents: function() {
+        const receiptIndicators = document.querySelectorAll('.receipt-indicator');
+        receiptIndicators.forEach(indicator => {
+            indicator.addEventListener('click', (event) => {
+                event.stopPropagation(); // Evita propagação do evento
+                const expenseId = indicator.getAttribute('data-expense-id');
+                this.showReceiptPreview(expenseId);
+            });
+        });
+    },
+
+    /**
+     * Mostra a visualização do comprovante
+     * @param {string} expenseId - ID da despesa
+     */
+    showReceiptPreview: function(expenseId) {
+        const expense = ExpenseManager.getById(expenseId);
+        if (!expense || !expense.hasReceipt) return;
+        
+        // Cria o elemento de visualização
+        const previewElement = document.createElement('div');
+        previewElement.className = 'receipt-preview';
+        
+        // Determina o tipo de conteúdo
+        let contentHtml = '';
+        if (expense.receiptType.startsWith('image/')) {
+            contentHtml = `<img src="${expense.receiptData}" alt="Comprovante">`;
+        } else if (expense.receiptType === 'application/pdf') {
+            contentHtml = `<iframe src="${expense.receiptData}" title="Comprovante PDF"></iframe>`;
+        } else {
+            contentHtml = `<div style="padding: 20px; background: white; border-radius: 8px;">
+                <p>Não foi possível visualizar este tipo de arquivo.</p>
+                <p>Tipo: ${expense.receiptType}</p>
+                <p>Nome: ${expense.receiptName}</p>
+            </div>`;
+        }
+        
+        // Adiciona o conteúdo
+        previewElement.innerHTML = `
+            <div class="receipt-preview-content">
+                ${contentHtml}
+            </div>
+            <button class="receipt-preview-close" aria-label="Fechar visualização">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        // Adiciona ao DOM
+        document.body.appendChild(previewElement);
+        
+        // Adiciona evento para fechar
+        const closeButton = previewElement.querySelector('.receipt-preview-close');
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(previewElement);
+        });
+        
+        // Fecha ao clicar fora do conteúdo
+        previewElement.addEventListener('click', (event) => {
+            if (event.target === previewElement) {
+                document.body.removeChild(previewElement);
+            }
+        });
+    },
+
+    /**
      * Mostra o modal de edição de despesa
      * @param {string} expenseId - ID da despesa
      * @param {string} accountId - ID da conta
@@ -543,6 +617,26 @@ const ExpenseUI = {
         document.getElementById('editExpenseDescription').value = expense.description;
         document.getElementById('editExpenseAmount').value = expense.amount;
         document.getElementById('editExpenseDate').value = expense.date;
+        
+        // Limpa o campo de arquivo
+        const fileInput = document.getElementById('editExpenseReceipt');
+        fileInput.value = '';
+        document.getElementById('editExpenseReceiptName').textContent = 'Nenhum arquivo selecionado';
+        
+        // Mostra informações do comprovante atual, se existir
+        const currentReceiptContainer = document.getElementById('currentReceiptContainer');
+        const currentReceiptName = document.getElementById('currentReceiptName');
+        const viewReceiptBtn = document.getElementById('viewReceiptBtn');
+        
+        if (expense.hasReceipt) {
+            currentReceiptContainer.style.display = 'block';
+            currentReceiptName.textContent = expense.receiptName;
+            
+            // Configura o botão de visualizar
+            viewReceiptBtn.onclick = () => this.showReceiptPreview(expenseId);
+        } else {
+            currentReceiptContainer.style.display = 'none';
+        }
         
         // Armazena os IDs no formulário
         const editForm = document.getElementById('editExpenseForm');
@@ -593,6 +687,11 @@ const ExpenseUI = {
                 const accountId = addExpenseButton.getAttribute('data-account-id');
                 document.getElementById('addExpenseForm').setAttribute('data-account-id', accountId);
                 
+                // Limpa o campo de arquivo
+                const fileInput = document.getElementById('expenseReceipt');
+                fileInput.value = '';
+                document.getElementById('expenseReceiptName').textContent = 'Nenhum arquivo selecionado';
+                
                 ModalUI.open('addExpenseModal');
             });
         }
@@ -608,6 +707,7 @@ const ExpenseUI = {
                 const description = document.getElementById('expenseDescription').value;
                 const amount = parseFloat(document.getElementById('expenseAmount').value);
                 const date = document.getElementById('expenseDate').value;
+                const receiptFile = document.getElementById('expenseReceipt').files[0] || null;
                 
                 // Validações básicas
                 if (!category || !description || isNaN(amount) || amount <= 0 || !date) {
@@ -625,7 +725,7 @@ const ExpenseUI = {
                 };
                 
                 // Salva a despesa
-                const success = ExpenseManager.add(newExpense);
+                const success = ExpenseManager.add(newExpense, receiptFile);
                 
                 if (success) {
                     addExpenseForm.reset();
@@ -634,9 +734,18 @@ const ExpenseUI = {
                     // Atualiza a interface em tempo real
                     AccountUI.updateAccountDetails(accountId);
                     AccountUI.updateAccountBalance(accountId);
-                    ExpenseUI.renderExpensesByAccount(accountId);
                     
-                    showToast('Despesa adicionada com sucesso!');
+                    // Se tiver anexo, aguarda um pouco para renderizar as despesas
+                    // para dar tempo do arquivo ser processado
+                    if (receiptFile) {
+                        setTimeout(() => {
+                            ExpenseUI.renderExpensesByAccount(accountId);
+                            showToast('Despesa adicionada com sucesso!');
+                        }, 500);
+                    } else {
+                        ExpenseUI.renderExpensesByAccount(accountId);
+                        showToast('Despesa adicionada com sucesso!');
+                    }
                 } else {
                     showToast('Erro ao adicionar despesa. Tente novamente.');
                 }
@@ -655,6 +764,11 @@ const ExpenseUI = {
                 const description = document.getElementById('editExpenseDescription').value;
                 const amount = parseFloat(document.getElementById('editExpenseAmount').value);
                 const date = document.getElementById('editExpenseDate').value;
+                const receiptFile = document.getElementById('editExpenseReceipt').files[0] || null;
+                
+                // Verifica se deve remover o comprovante
+                const removeReceiptBtn = document.getElementById('removeReceiptBtn');
+                const removeReceipt = removeReceiptBtn && removeReceiptBtn.hasAttribute('data-remove-receipt');
                 
                 // Validações básicas
                 if (!category || !description || isNaN(amount) || amount <= 0 || !date) {
@@ -671,9 +785,9 @@ const ExpenseUI = {
                 };
                 
                 // Atualiza a despesa
-                const success = ExpenseManager.update(expenseId, updatedExpense);
+                const result = ExpenseManager.update(expenseId, updatedExpense, receiptFile, removeReceipt);
                 
-                if (success) {
+                const handleSuccess = () => {
                     editExpenseForm.reset();
                     ModalUI.close('editExpenseModal');
                     
@@ -683,6 +797,19 @@ const ExpenseUI = {
                     ExpenseUI.renderExpensesByAccount(accountId);
                     
                     showToast('Despesa atualizada com sucesso!');
+                };
+                
+                // Verifica se o resultado é uma Promise (caso de upload de arquivo)
+                if (result instanceof Promise) {
+                    result.then(success => {
+                        if (success) {
+                            handleSuccess();
+                        } else {
+                            showToast('Erro ao atualizar despesa. Tente novamente.');
+                        }
+                    });
+                } else if (result) {
+                    handleSuccess();
                 } else {
                     showToast('Erro ao atualizar despesa. Tente novamente.');
                 }
@@ -710,6 +837,68 @@ const ExpenseUI = {
                     showToast('Despesa excluída com sucesso!');
                 } else {
                     showToast('Erro ao excluir despesa. Tente novamente.');
+                }
+            });
+        }
+        
+        // Botão para remover comprovante
+        const removeReceiptBtn = document.getElementById('removeReceiptBtn');
+        if (removeReceiptBtn) {
+            removeReceiptBtn.addEventListener('click', () => {
+                // Marca o botão para remover o comprovante
+                removeReceiptBtn.setAttribute('data-remove-receipt', 'true');
+                
+                // Esconde o container de comprovante atual
+                document.getElementById('currentReceiptContainer').style.display = 'none';
+                
+                // Mostra mensagem de confirmação
+                showToast('O comprovante será removido ao salvar as alterações.');
+            });
+        }
+        
+        // Eventos para os campos de upload de arquivo
+        this.initFileInputEvents();
+    },
+    
+    /**
+     * Inicializa eventos para os campos de upload de arquivo
+     */
+    initFileInputEvents: function() {
+        // Campo de arquivo para adicionar despesa
+        const expenseReceipt = document.getElementById('expenseReceipt');
+        const expenseReceiptName = document.getElementById('expenseReceiptName');
+        
+        if (expenseReceipt && expenseReceiptName) {
+            expenseReceipt.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    expenseReceiptName.textContent = file.name;
+                } else {
+                    expenseReceiptName.textContent = 'Nenhum arquivo selecionado';
+                }
+            });
+        }
+        
+        // Campo de arquivo para editar despesa
+        const editExpenseReceipt = document.getElementById('editExpenseReceipt');
+        const editExpenseReceiptName = document.getElementById('editExpenseReceiptName');
+        
+        if (editExpenseReceipt && editExpenseReceiptName) {
+            editExpenseReceipt.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    editExpenseReceiptName.textContent = file.name;
+                    
+                    // Esconde o container de comprovante atual
+                    document.getElementById('currentReceiptContainer').style.display = 'none';
+                    
+                    // Remove o atributo de remoção, se existir
+                    const removeReceiptBtn = document.getElementById('removeReceiptBtn');
+                    if (removeReceiptBtn) {
+                        removeReceiptBtn.removeAttribute('data-remove-receipt');
+                    }
+                } else {
+                    editExpenseReceiptName.textContent = 'Nenhum arquivo selecionado';
                 }
             });
         }
